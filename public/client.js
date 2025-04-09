@@ -1,72 +1,36 @@
-
+// Socket.io bağlantısını başlat
 const socket = io();
-let localStream;
-let peerConnections = {};
-let room = "";
 
-const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+// Ses açma ve kapama butonları
+const muteBtn = document.getElementById('muteBtn');
+const unmuteBtn = document.getElementById('unmuteBtn');
 
-document.getElementById('joinBtn').onclick = async () => {
-    room = document.getElementById('roomInput').value;
-    socket.emit('join-room', room);
-    localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+// Ses durumu
+let isMuted = false;
 
-    document.getElementById('status').innerText = 'Bağlı';
+// Sayfa yüklendiğinde sesli sohbet başlat
+socket.on('connect', () => {
+  document.getElementById('status').textContent = 'Bağlantı sağlandı!';
+  console.log('Bağlantı sağlandı!');
+  // Burada sesli sohbet başlatılabilir, örneğin medya akışı başlatılabilir
+});
 
-    socket.on('user-connected', (userId) => {
-        const pc = new RTCPeerConnection(config);
-        peerConnections[userId] = pc;
-        localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+// Ses açma butonuna tıklama işlemi
+unmuteBtn.addEventListener('click', () => {
+  isMuted = false;
+  unmuteBtn.style.display = 'none';
+  muteBtn.style.display = 'inline';
+  console.log('Ses açıldı');
+  // Burada ses açma işlemi yapılabilir, örneğin medya akışını unmute etmek
+  socket.emit('unmute');  // Sunucuya ses açma komutu gönder
+});
 
-        pc.onicecandidate = (e) => {
-            if (e.candidate) socket.emit('ice-candidate', e.candidate, room);
-        };
-
-        pc.ontrack = (e) => {
-            const audio = document.createElement('audio');
-            audio.srcObject = e.streams[0];
-            audio.autoplay = true;
-            document.body.appendChild(audio);
-        };
-
-        pc.createOffer().then(offer => {
-            pc.setLocalDescription(offer);
-            socket.emit('sdp-offer', offer, room);
-        });
-    });
-
-    socket.on('sdp-offer', (offer, userId) => {
-        const pc = new RTCPeerConnection(config);
-        peerConnections[userId] = pc;
-        localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-
-        pc.onicecandidate = (e) => {
-            if (e.candidate) socket.emit('ice-candidate', e.candidate, room);
-        };
-
-        pc.ontrack = (e) => {
-            const audio = document.createElement('audio');
-            audio.srcObject = e.streams[0];
-            audio.autoplay = true;
-            document.body.appendChild(audio);
-        };
-
-        pc.setRemoteDescription(new RTCSessionDescription(offer)).then(() => {
-            return pc.createAnswer();
-        }).then(answer => {
-            pc.setLocalDescription(answer);
-            socket.emit('sdp-answer', answer, room);
-        });
-    });
-
-    socket.on('sdp-answer', (answer, userId) => {
-        peerConnections[userId].setRemoteDescription(new RTCSessionDescription(answer));
-    });
-
-    socket.on('ice-candidate', (candidate) => {
-        Object.values(peerConnections).forEach(pc => {
-            pc.addIceCandidate(new RTCIceCandidate(candidate));
-        });
-    });
-};
-          
+// Ses kapama butonuna tıklama işlemi
+muteBtn.addEventListener('click', () => {
+  isMuted = true;
+  muteBtn.style.display = 'none';
+  unmuteBtn.style.display = 'inline';
+  console.log('Ses kapatıldı');
+  // Burada ses kapama işlemi yapılabilir, örneğin medya akışını mute etmek
+  socket.emit('mute');  // Sunucuya ses kapama komutu gönder
+});
