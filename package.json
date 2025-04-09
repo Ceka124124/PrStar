@@ -1,0 +1,14 @@
+{
+  "name": "voice-chat-service",
+  "version": "1.0.0",
+  "description": "WebSocket voice chat service",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "install": "npm install"
+  },
+  "dependencies": {
+    "socket.io": "^4.0.0",
+    "express": "^4.17.1"
+  }
+}
