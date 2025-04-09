@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -7,9 +6,9 @@
 </head>
 <body>
   <h1>Sesli Sohbet</h1>
-  <input id="roomInput" placeholder="Oda adı" />
-  <button id="joinBtn">Katıl</button>
   <div id="status">Bağlantı yok</div>
+  <button id="muteBtn">Ses Kapat</button>
+  <button id="unmuteBtn" style="display:none;">Ses Aç</button>
   <script src="/socket.io/socket.io.js"></script>
   <script src="client.js"></script>
 </body>
