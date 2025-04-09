@@ -1,40 +1,32 @@
-
 const express = require('express');
 const http = require('http');
-const socketIO = require('socket.io');
+const socketIo = require('socket.io');
+
 const app = express();
 const server = http.createServer(app);
-const io = socketIO(server);
+const io = socketIo(server);
 
+// Statik dosyaları sunmak için
 app.use(express.static('public'));
 
+// Socket.io bağlantı
 io.on('connection', (socket) => {
-    console.log('Bir kullanıcı bağlandı:', socket.id);
+  console.log('Bir kullanıcı bağlandı');
 
-    socket.on('join-room', (room) => {
-        socket.join(room);
-        socket.to(room).emit('user-connected', socket.id);
-    });
+  socket.on('mute', () => {
+    console.log('Ses kapatıldı');
+  });
 
-    socket.on('ice-candidate', (candidate, room) => {
-        socket.to(room).emit('ice-candidate', candidate);
-    });
+  socket.on('unmute', () => {
+    console.log('Ses açıldı');
+  });
 
-    socket.on('sdp-offer', (offer, room) => {
-        socket.to(room).emit('sdp-offer', offer, socket.id);
-    });
-
-    socket.on('sdp-answer', (answer, room) => {
-        socket.to(room).emit('sdp-answer', answer);
-    });
-
-    socket.on('disconnect', () => {
-        console.log('Bir kullanıcı ayrıldı:', socket.id);
-        io.emit('user-disconnected', socket.id);
-    });
+  socket.on('disconnect', () => {
+    console.log('Bir kullanıcı ayrıldı');
+  });
 });
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`Sunucu ${PORT} portunda çalışıyor.`);
+// Sunucuyu başlat
+server.listen(3000, () => {
+  console.log('Sunucu 3000 portunda çalışıyor');
 });
