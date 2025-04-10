@@ -1,11 +1,28 @@
 // Socket.io server'ına bağlanma (Render'daki backend URL'sini kullanıyoruz)
 const socket = io('https://prstar-voice-server.onrender.com'); // Render URL'si
 
+// CORS hatası izleme
+socket.on('connect', () => {
+    console.log('Socket.io sunucusuna bağlanıldı');
+});
+
+socket.on('connect_error', (error) => {
+    console.log('Socket.io bağlantı hatası:', error);
+});
+
+// WebRTC yapılandırması
 let localStream;
 let remoteStream;
 let peerConnection;
 const serverConfig = {
-    iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] // STUN sunucusu
+    iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' }, // STUN sunucusu
+        { 
+            urls: 'turn:your-turn-server-url', // TURN sunucusu (isteğe bağlı)
+            username: 'your-username',
+            credential: 'your-password'
+        }
+    ]
 };
 
 // DOM elemanları
