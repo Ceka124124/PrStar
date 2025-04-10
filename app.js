@@ -1,4 +1,5 @@
-const socket = io(); // Socket.io sunucusuna bağlan
+// Socket.io server'ına bağlanma (Render'daki backend URL'sini kullanıyoruz)
+const socket = io('https://prstar-voice-server.onrender.com'); // Render URL'si
 
 let localStream;
 let remoteStream;
