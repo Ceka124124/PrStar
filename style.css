@@ -1,0 +1,49 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f3f4f6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    text-align: center;
+}
+
+#video-container {
+    margin: 20px 0;
+}
+
+video {
+    width: 400px;
+    height: 300px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+}
+
+#controls button {
+    margin: 10px;
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    background-color: #4CAF50;
+    color: white;
+}
+
+#controls button:disabled {
+    background-color: #ddd;
+    cursor: not-allowed;
+}
+
+#status {
+    margin-top: 20px;
+}
