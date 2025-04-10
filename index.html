@@ -4,92 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sesli Sohbet</title>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-    <style>
-        video {
-            width: 300px;
-            margin: 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Sesli Sohbet</h1>
-    <button onclick="startCall()">Bağlantıyı Başlat</button>
-    <button onclick="endCall()">Bağlantıyı Sonlandır</button>
-    <video id="localVideo" autoplay muted></video>
-    <video id="remoteVideo" autoplay></video>
-
-    <script>
-        const socket = io(); // Socket.io ile bağlantı
-        let localStream;
-        let remoteStream;
-        let peerConnection;
-        const roomId = 'room1'; // Sabit oda ID'si
-
-        // Medya akışını al
-        async function getMedia() {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-            localStream = stream;
-            document.getElementById('localVideo').srcObject = stream;
-        }
-
-        // Arama başlat
-        function startCall() {
-            getMedia().then(() => {
-                peerConnection = new RTCPeerConnection();
-
-                // Yerel akışı ekle
-                localStream.getTracks().forEach(track => {
-                    peerConnection.addTrack(track, localStream);
-                });
-
-                // ICE candidate olayını dinle
-                peerConnection.onicecandidate = (event) => {
-                    if (event.candidate) {
-                        socket.emit('signal', { type: 'candidate', candidate: event.candidate, roomId: roomId });
-                    }
-                };
-
-                // Gelen akışı al ve remote video'ya aktar
-                peerConnection.ontrack = (event) => {
-                    remoteStream = event.streams[0];
-                    document.getElementById('remoteVideo').srcObject = remoteStream;
-                };
-
-                // Offer oluştur
-                peerConnection.createOffer().then(offer => {
-                    return peerConnection.setLocalDescription(offer);
-                }).then(() => {
-                    socket.emit('signal', { type: 'offer', sdp: peerConnection.localDescription, roomId: roomId });
-                });
-            });
-        }
-
-        // Aramayı sonlandır
-        function endCall() {
-            peerConnection.close();
-            socket.emit('signal', { type: 'bye', roomId: roomId });
-        }
-
-        // Sinyalleme verilerini al
-        socket.on('signal', (data) => {
-            if (data.type === 'offer') {
-                peerConnection.setRemoteDescription(new RTCSessionDescription(data.sdp)).then(() => {
-                    return peerConnection.createAnswer();
-                }).then((answer) => {
-                    return peerConnection.setLocalDescription(answer);
-                }).then(() => {
-                    socket.emit('signal', { type: 'answer', sdp: peerConnection.localDescription, roomId: roomId });
-                });
-            } else if (data.type === 'answer') {
-                peerConnection.setRemoteDescription(new RTCSessionDescription(data.sdp));
-            } else if (data.type === 'candidate') {
-                peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
-            } else if (data.type === 'bye') {
-                endCall();
-            }
-        });
-    </script>
+    <div class="container">
+        <h1>Sesli Sohbet</h1>
+        <div id="video-container">
+            <video id="local-video" autoplay muted></video>
+            <video id="remote-video" autoplay></video>
+        </div>
+        <div id="controls">
+            <button id="start-btn">Sohbete Başla</button>
+            <button id="mute-btn">Mikrofonu Kapat</button>
+        </div>
+        <div id="status">
+            <p>Durum: <span id="connection-status">Bağlantı Bekleniyor...</span></p>
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
